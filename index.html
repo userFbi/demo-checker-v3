@@ -50,6 +50,48 @@ p{margin:0}
 .foot .col{flex:1 1 160px;min-width:0;display:flex;flex-direction:column;gap:10px}
 .foot .ct{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#ABA48F;margin-bottom:4px}
 .nav a{color:#F4EFE3;text-decoration:none;font-size:15px;font-weight:500}
+
+/* ===== Motion ===== */
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes heroZoom{from{transform:scale(1.12)}to{transform:scale(1)}}
+@keyframes shine{0%{background-position:160% 0}100%{background-position:-60% 0}}
+@keyframes barIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* Hero: one orchestrated load sequence */
+main>section:first-child .photo{animation:heroZoom 2.4s cubic-bezier(.2,.7,.2,1) both}
+main>section:first-child .wrap>*{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+main>section:first-child .wrap>:nth-child(1){animation-delay:.15s}
+main>section:first-child .wrap>:nth-child(2){animation-delay:.3s}
+main>section:first-child .wrap>:nth-child(3){animation-delay:.5s}
+main>section:first-child .wrap>:nth-child(4){animation-delay:.65s}
+main>section:first-child .wrap>:nth-child(5){animation-delay:.85s}
+/* gold light sweeps across the headline once, like stadium lights */
+main>section:first-child h1{background:linear-gradient(105deg,#F4EFE3 40%,#FFE29A 50%,#F4EFE3 60%) 160% 0/250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rise .8s cubic-bezier(.2,.7,.2,1) .3s both,shine 1.6s ease-in-out 1.3s 1 forwards}
+
+/* Interaction feedback */
+.btn,.btn-o{transition:background-color .2s,border-color .2s,transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(244,203,99,.25)}
+.btn:active,.btn-o:active{transform:translateY(0)}
+.tile .photo,.pgrid>a .photo{transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.tile:hover .photo,.pgrid>a:hover .photo{transform:scale(1.06)}
+.pgrid>a .pprice span:last-child{transition:transform .2s}
+.pgrid>a:hover .pprice span:last-child{transform:translateX(4px)}
+.nav a{position:relative}
+.nav a:not([style*="background"])::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:#F4CB63;transform:scaleX(0);transform-origin:left;transition:transform .25s}
+.nav a:not([style*="background"]):hover::after{transform:scaleX(1)}
+
+/* Scroll reveals (only the grids that benefit; classes added by JS) */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*90ms)}
+.rv.in{opacity:1;transform:none}
+.step.rv{border-top-color:transparent;position:relative}
+.step.rv::before{content:"";position:absolute;top:-3px;left:0;right:0;height:3px;background:#E0AE35;transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*90ms + .1s)}
+.step.rv.in::before{transform:scaleX(1)}
+
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important}
+ .rv{opacity:1;transform:none}
+ main>section:first-child h1{-webkit-text-fill-color:#F4EFE3}
+}
 </style></head><body>
 <div style="background:#F4CB63;color:#14110A;font-size:14px;font-weight:600;text-align:center;padding:10px 16px">Rush production in 2–3 business days. Insured UPS shipping from Ohio.</div>
 <header style="border-bottom:1px solid #2E2A20"><div class="wrap" style="padding-top:18px;padding-bottom:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 32px">
@@ -115,4 +157,13 @@ p{margin:0}
 <div class="col"><div class="ct">Support</div><a href="https://championshipchains.com/pages/contact">Contact us</a><a href="https://championshipchains.com/pages/artwork-guidelines">Artwork guidelines</a><a href="https://championshipchains.com/pages/ordering-process">Ordering process</a><a href="https://championshipchains.com/pages/customer-service">Customer service</a></div>
 </div><div style="border-top:1px solid #2E2A20;padding-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;color:#ABA48F;font-size:14px"><span>© 2026 Championship Chains. All rights reserved.</span><span>Secure checkout. Insured shipping.</span></div>
 </div></footer>
+<script>
+(function(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches||!('IntersectionObserver' in window))return;
+  var groups=['.pgrid>a','.stepgrid>.step','figure','.tile','.stepgrid~*'];
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+  ['.pgrid','.stepgrid'].forEach(function(g){document.querySelectorAll(g).forEach(function(box){Array.prototype.forEach.call(box.children,function(c,i){c.style.setProperty('--i',i);c.classList.add('rv');io.observe(c)})})});
+  document.querySelectorAll('figure').forEach(function(c,i){c.style.setProperty('--i',i%3);c.classList.add('rv');io.observe(c)});
+})();
+</script>
 </body></html>
